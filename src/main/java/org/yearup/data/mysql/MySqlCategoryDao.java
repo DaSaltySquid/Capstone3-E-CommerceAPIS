@@ -66,19 +66,64 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
     public Category create(Category category)
     {
         // create a new category
-        return null;
+        String sql = "INSERT INTO categories (name, description) VALUES (?, ?)";
+
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+            preparedStatement.setString(1, category.getName());
+            preparedStatement.setString(2, category.getDescription());
+
+            preparedStatement.executeUpdate();
+
+            try (ResultSet generatedKey = preparedStatement.getGeneratedKeys()) {
+                if (generatedKey.next()) {
+                    int generatedId = generatedKey.getInt(1);
+                    category.setCategoryId(generatedId);
+                }
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return category;
     }
 
     @Override
     public void update(int categoryId, Category category)
     {
         // update category
+        String sql = "UPDATE categories SET name = ?, description = ? WHERE category_id = ?";
+
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+
+            preparedStatement.setString(1,category.getName());
+            preparedStatement.setString(2,category.getDescription());
+            preparedStatement.setInt(3,categoryId);
+
+            preparedStatement.executeUpdate();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
     public void delete(int categoryId)
     {
         // delete category
+        String sql = "DELETE FROM categories WHERE category_id";
+
+        try(Connection connection = getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1,categoryId);
+
+            preparedStatement.executeUpdate();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private Category mapRow(ResultSet row) throws SQLException
