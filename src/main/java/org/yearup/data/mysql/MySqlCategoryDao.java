@@ -32,7 +32,10 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
         ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
-                Category category = mapRow(resultSet);
+                int categoryId = resultSet.getInt("category_id");
+                String name = resultSet.getString("name");
+                String description = resultSet.getString("description");
+                Category category = new Category(categoryId, name, description);
                 categories.add(category);
             }
     } catch (Exception ex) {
@@ -49,7 +52,7 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
 
         try (Connection connection = getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, categoryId);
+        preparedStatement.setInt(1, categoryId);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -103,8 +106,9 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
             preparedStatement.setInt(3,categoryId);
 
             preparedStatement.executeUpdate();
+
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 
@@ -114,12 +118,11 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
         // delete category
         String sql = "DELETE FROM categories WHERE category_id";
 
-        try(Connection connection = getConnection();
+        try(Connection connection = super.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-
             preparedStatement.setInt(1,categoryId);
-
-            preparedStatement.executeUpdate();
+            int rows = preparedStatement.executeUpdate();
+            System.out.println(rows + " rows affected ");
 
         } catch (Exception ex) {
             ex.printStackTrace();
