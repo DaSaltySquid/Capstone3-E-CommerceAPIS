@@ -116,13 +116,12 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
     public void delete(int categoryId)
     {
         // delete category
-        String sql = "DELETE FROM categories WHERE category_id";
+        String sql = "DELETE FROM categories WHERE category_id = ?";
 
-        try(Connection connection = super.getConnection();
+        try(Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1,categoryId);
-            int rows = preparedStatement.executeUpdate();
-            System.out.println(rows + " rows affected ");
+            preparedStatement.executeUpdate();
 
         } catch (Exception ex) {
             ex.printStackTrace();

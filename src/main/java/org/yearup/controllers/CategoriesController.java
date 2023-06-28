@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 import org.yearup.data.CategoryDao;
 import org.yearup.data.ProductDao;
@@ -36,7 +37,7 @@ public class CategoriesController
     @GetMapping
     @PreAuthorize("permitAll()")
     public List<Category> getAll() {
-       
+
             // find and return all categories
             return categoryDao.getAllCategories();
 
@@ -46,15 +47,26 @@ public class CategoriesController
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public Category getById(@PathVariable int id) {
-
+      Category category = null;
             // get the category by id
-            if (categoryDao.getById(id) == null) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error");
-            }
-
-            return categoryDao.getById(id);
+        try
+        {
+            category = categoryDao.getById(id);
 
 
+        }
+        catch(Exception ex)
+
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+        }
+
+        if(category == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+
+        return category;
     }
 
     // the url to return all products in category 1 would look like this
